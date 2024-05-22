@@ -23,13 +23,6 @@ defmodule Server do
     {:ok, socket} = :gen_tcp.listen(6379, [:binary, active: false, reuseaddr: true])
     {:ok, client} = :gen_tcp.accept(socket)
 
-    {:ok, data} = :gen_tcp.recv(client, 0)
-
-    resp =
-      case data do
-        "PING" -> "+PONG\r\n"
-      end
-
-    :gen_tcp.send(client, resp)
+    :gen_tcp.send(client, "+PONG\r\n")
   end
 end
