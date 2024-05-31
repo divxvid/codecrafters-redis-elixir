@@ -20,18 +20,23 @@ defmodule Server.Listener do
     {:ok, pid} =
       Task.Supervisor.start_child(
         Server.ClientAcceptor,
-        fn -> ping_pong(client) end
+        fn -> command_loop(client) end
       )
 
     :gen_tcp.controlling_process(client, pid)
     accept_connection(listening_socket)
   end
 
-  defp ping_pong(socket) do
+  defp command_loop(socket) do
     case :gen_tcp.recv(socket, 0) do
-      {:ok, _} ->
-        :gen_tcp.send(socket, "+PONG\r\n")
-        ping_pong(socket)
+      {:ok, payload} ->
+        {decoded_command, _} = RedisProtocol.Decoder.decode(payload)
+        output = Command.process(decoded_command)
+        encoded_output = RedisProtocol.Encoder.encode(output)
+
+        :gen_tcp.send(socket, encoded_output)
+
+        command_loop(socket)
 
       {:error, :closed} ->
         :ok
