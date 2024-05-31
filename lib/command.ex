@@ -1,5 +1,14 @@
 defmodule Command do
-  def process([]), do: :noop
+  def process([command | args]) do
+    case String.downcase(command) do
+      "ping" ->
+        "PONG"
 
-  def process(["PING" | _]), do: "PONG"
+      "echo" ->
+        List.first(args)
+
+      _ ->
+        "COMMAND NOT IMPLEMENTED"
+    end
+  end
 end
