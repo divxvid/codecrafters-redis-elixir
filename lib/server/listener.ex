@@ -16,7 +16,14 @@ defmodule Server.Listener do
 
   def accept_connection(listening_socket) do
     {:ok, client} = :gen_tcp.accept(listening_socket)
-    ping_pong(client)
+
+    {:ok, pid} =
+      Task.Supervisor.start_child(
+        Server.ClientAcceptor,
+        fn -> ping_pong(client) end
+      )
+
+    :gen_tcp.controlling_process(client, pid)
     accept_connection(listening_socket)
   end
 

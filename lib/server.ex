@@ -7,6 +7,7 @@ defmodule Server do
 
   def start(_type, _args) do
     children = [
+      {Task.Supervisor, name: Server.ClientAcceptor},
       {Task, fn -> Server.Listener.listen() end}
     ]
 
