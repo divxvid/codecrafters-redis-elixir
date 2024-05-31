@@ -32,9 +32,8 @@ defmodule Server.Listener do
       {:ok, payload} ->
         {decoded_command, _} = RedisProtocol.Decoder.decode(payload)
         output = Command.process(decoded_command)
-        encoded_output = RedisProtocol.Encoder.encode(output)
 
-        :gen_tcp.send(socket, encoded_output)
+        :gen_tcp.send(socket, output)
 
         command_loop(socket)
 
